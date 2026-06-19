@@ -1,0 +1,131 @@
+# ─────────────────────────────────────────────────────────
+# GitHub Actions CI/CD Pipeline for Kravia LMS
+# Triggers: Push or PR to main branch
+# Jobs:
+#   1. backend-tests  — Run Django tests with real PostgreSQL
+#   2. frontend-tests — Run React tests
+#   3. deploy         — Build Docker images + SSH deploy (main only)
+# ─────────────────────────────────────────────────────────
+
+name: Kravia LMS CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+
+  # ─────────────────────────────────────────────────────
+  # Job 1: Django Backend Tests
+  # ─────────────────────────────────────────────────────
+  backend-tests:
+    name: 🐍 Backend Tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: test_kravia
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: 'pip'
+          cache-dependency-path: backend/requirements.txt
+
+      - name: 📦 Install dependencies
+        run: |
+          cd backend
+          pip install -r requirements.txt
+
+      - name: 🔬 Run Django tests
+        env:
+          SECRET_KEY: ci-test-secret-key-not-for-production
+          DEBUG: 'True'
+          DB_NAME: test_kravia
+          DB_USER: postgres
+          DB_PASSWORD: postgres
+          DB_HOST: localhost
+          DB_PORT: '5432'
+          EMAIL_USER: test@test.com
+          EMAIL_PASSWORD: testpass
+        run: |
+          cd backend
+          python manage.py migrate --noinput
+          python manage.py test --verbosity=2
+
+  # ─────────────────────────────────────────────────────
+  # Job 2: React Frontend Tests
+  # ─────────────────────────────────────────────────────
+  frontend-tests:
+    name: ⚛️ Frontend Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Set up Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: 📦 Install dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: 🧪 Run React tests
+        run: |
+          cd frontend
+          CI=true npm test -- --watchAll=false --passWithNoTests
+
+  # ─────────────────────────────────────────────────────
+  # Job 3: Deploy to Production (only on push to main)
+  # ─────────────────────────────────────────────────────
+  deploy:
+    name: 🚀 Deploy to Server
+    needs: [backend-tests, frontend-tests]   # Only runs if both tests pass
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔑 Set up SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: 🚀 Deploy via SSH
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'ENDSSH'
+            cd /opt/kravia
+            git pull origin main
+            docker-compose -f docker-compose.prod.yml up -d --build
+            docker-compose -f docker-compose.prod.yml exec -T backend python manage.py migrate --noinput
+            docker-compose -f docker-compose.prod.yml exec -T backend python manage.py collectstatic --noinput
+            # Clean up old Docker images to save disk space
+            docker image prune -f
+            echo "✅ Deployment complete!"
+          ENDSSH

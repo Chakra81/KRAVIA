@@ -1,0 +1,32 @@
+# ─────────────────────────────────────────────────────────
+# .dockerignore — Backend
+# Prevents unnecessary files from being sent to Docker build context
+# ─────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.log
+.env
+.env.*
+venv/
+.venv/
+env/
+.git/
+.gitignore
+.DS_Store
+*.sqlite3
+db.sqlite3
+staticfiles/
+media/
+.idea/
+.vscode/
+Dockerfile
+docker-compose*.yml
+README.md

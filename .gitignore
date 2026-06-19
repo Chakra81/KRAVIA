@@ -1,0 +1,40 @@
+# ─── Environment & Secrets ────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ─── Python ───────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+venv/
+.venv/
+env/
+*.sqlite3
+db.sqlite3
+
+# ─── Django ───────────────────────────────────────────────
+staticfiles/
+media/
+
+# ─── Node / React ─────────────────────────────────────────
+node_modules/
+frontend/build/
+*.log
+npm-debug.log*
+
+# ─── Docker ───────────────────────────────────────────────
+.docker/
+
+# ─── IDE ──────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db

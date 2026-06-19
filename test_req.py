@@ -1,0 +1,1 @@
+import requests; open('response.html', 'w', encoding='utf-8').write(requests.post('http://127.0.0.1:8000/api/verify-otp/', json={'email':'21a31a4425@gmail.com', 'otp':'123456', 'name':'Test User', 'course_id':'', 'password':'password123'}).text)

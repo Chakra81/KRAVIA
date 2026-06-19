@@ -1,0 +1,14 @@
+# ─────────────────────────────────────────────────────────
+# .dockerignore — Frontend
+# ─────────────────────────────────────────────────────────
+node_modules/
+build/
+.git/
+.gitignore
+.DS_Store
+*.log
+.env
+.env.*
+.vscode/
+.idea/
+README.md

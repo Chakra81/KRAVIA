@@ -1,0 +1,64 @@
+# ─────────────────────────────────────────────────────────
+# Docker Compose — Development
+# Usage: docker-compose up --build
+# ─────────────────────────────────────────────────────────
+version: '3.9'
+
+services:
+
+  # ── PostgreSQL Database ─────────────────────────────
+  db:
+    image: postgres:15-alpine
+    container_name: kravia_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-kravia_db}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres123}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Django Backend ──────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: kravia_backend
+    restart: unless-stopped
+    # Dev: use runserver with auto-reload
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./backend:/app           # Hot reload in dev
+      - media_data:/app/media
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=db               # Override to use container DB
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # ── React Frontend ──────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: kravia_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  media_data:

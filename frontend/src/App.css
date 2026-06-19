@@ -1,0 +1,4 @@
+/* Resetting App.css for Tailwind compatibility */
+.App {
+  text-align: left;
+}

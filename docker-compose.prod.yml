@@ -1,0 +1,66 @@
+# ─────────────────────────────────────────────────────────
+# Docker Compose — Production
+# Usage: docker-compose -f docker-compose.prod.yml up -d --build
+# ─────────────────────────────────────────────────────────
+version: '3.9'
+
+services:
+
+  # ── PostgreSQL Database ─────────────────────────────
+  db:
+    image: postgres:15-alpine
+    container_name: kravia_db_prod
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # No port exposed in prod (internal only)
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Django Backend (Gunicorn) ───────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: kravia_backend_prod
+    restart: always
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 120"
+    volumes:
+      - media_data:/app/media
+      - static_data:/app/staticfiles
+    env_file:
+      - .env.prod
+    environment:
+      - DB_HOST=db
+      - DEBUG=False
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # ── React Frontend + Nginx ──────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: kravia_frontend_prod
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  media_data:
+  static_data:
