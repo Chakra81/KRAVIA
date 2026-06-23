@@ -6,7 +6,7 @@ import axios from 'axios';
 import NotificationBell from '../components/NotificationBell';
 
 
-const API = `http://${window.location.hostname}:8000/api`;
+const API = `https://kravia.onrender.com/api`;
 
 const MiniCalendar = ({ events }) => {
   const [currentDate, setCurrentDate] = useState(new Date());

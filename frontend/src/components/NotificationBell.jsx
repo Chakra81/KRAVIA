@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 
-const api = axios.create({ baseURL: `http://${window.location.hostname}:8000` });
+const api = axios.create({ baseURL: `https://kravia.onrender.com` });
 
 const NotificationBell = () => {
   const { user } = useAuth();
@@ -33,7 +33,7 @@ const NotificationBell = () => {
     fetchUnreadCount();
     
     // Connect to WebSocket for real-time notifications
-    const wsUrl = `ws://${window.location.hostname}:8000/ws/notifications/${user.id}/`;
+    const wsUrl = `wss://kravia.onrender.com/ws/notifications/${user.id}/`;
     const ws = new WebSocket(wsUrl);
     
     ws.onmessage = (event) => {

@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import axios from 'axios';
 
-const API = `http://${window.location.hostname}:8000/api`;
+const API = `https://kravia.onrender.com/api`;
 
 const AddAdmin = () => {
   const { user } = useAuth();

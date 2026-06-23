@@ -21,7 +21,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post(`http://${window.location.hostname}:8000/api/admin-login-direct/`, {
+      const response = await axios.post(`https://kravia.onrender.com/api/admin-login-direct/`, {
         email,
         password
       });

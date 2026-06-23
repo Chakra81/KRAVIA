@@ -84,7 +84,7 @@ export default function Assignments() {
 
     const fetchTrainerBatches = async () => {
         try {
-            const res = await fetch(`http://${window.location.hostname}:8000/api/trainer/my-courses/?email=${user.email}`);
+            const res = await fetch(`https://kravia.onrender.com/api/trainer/my-courses/?email=${user.email}`);
             if (res.ok) {
                 const data = await res.json();
                 setTrainerBatches(data);
@@ -96,7 +96,7 @@ export default function Assignments() {
 
     const fetchAllBatches = async () => {
         try {
-            const res = await fetch(`http://${window.location.hostname}:8000/api/list-courses/`);
+            const res = await fetch(`https://kravia.onrender.com/api/list-courses/`);
             if (res.ok) {
                 const data = await res.json();
                 const courses = Array.isArray(data) ? data : (data.courses || []);
@@ -117,7 +117,7 @@ export default function Assignments() {
 
     const fetchAssignments = async () => {
         try {
-            const res = await fetch(`http://${window.location.hostname}:8000/api/assignments/?email=${user.email}`);
+            const res = await fetch(`https://kravia.onrender.com/api/assignments/?email=${user.email}`);
             if (res.ok) {
                 const data = await res.json();
                 setAssignments(data);
@@ -131,7 +131,7 @@ export default function Assignments() {
 
     const fetchSubmissions = async (assignmentId) => {
         try {
-            const res = await fetch(`http://${window.location.hostname}:8000/api/assignments/${assignmentId}/submissions/?email=${user.email}`);
+            const res = await fetch(`https://kravia.onrender.com/api/assignments/${assignmentId}/submissions/?email=${user.email}`);
             if (res.ok) {
                 const data = await res.json();
                 setSubmissions(data);
@@ -163,7 +163,7 @@ export default function Assignments() {
         console.log('Creating assignment with payload:', payload);
 
         try {
-            const res = await fetch(`http://${window.location.hostname}:8000/api/assignments/`, {
+            const res = await fetch(`https://kravia.onrender.com/api/assignments/`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
@@ -190,7 +190,7 @@ export default function Assignments() {
         const formData = new FormData(e.target);
         
         try {
-            const res = await fetch(`http://${window.location.hostname}:8000/api/assignments/${editData.id}/`, {
+            const res = await fetch(`https://kravia.onrender.com/api/assignments/${editData.id}/`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -230,7 +230,7 @@ export default function Assignments() {
     const confirmDeleteAssignment = async () => {
         if (!deleteData) return;
         try {
-            const res = await fetch(`http://${window.location.hostname}:8000/api/assignments/${deleteData.id}/`, {
+            const res = await fetch(`https://kravia.onrender.com/api/assignments/${deleteData.id}/`, {
                 method: 'DELETE'
             });
             if (res.ok) {
@@ -252,7 +252,7 @@ export default function Assignments() {
         e.preventDefault();
         const formData = new FormData(e.target);
         try {
-            const res = await fetch(`http://${window.location.hostname}:8000/api/assignments/submissions/${submissionId}/grade/`, {
+            const res = await fetch(`https://kravia.onrender.com/api/assignments/submissions/${submissionId}/grade/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -275,7 +275,7 @@ export default function Assignments() {
         e.preventDefault();
         const formData = new FormData(e.target);
         try {
-            const res = await fetch(`http://${window.location.hostname}:8000/api/assignments/${activeAssignment.id}/submissions/`, {
+            const res = await fetch(`https://kravia.onrender.com/api/assignments/${activeAssignment.id}/submissions/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -293,7 +293,7 @@ export default function Assignments() {
                 
                 // Log activity to heatmap
                 try {
-                    await fetch(`http://${window.location.hostname}:8000/api/heatmap/log/`, {
+                    await fetch(`https://kravia.onrender.com/api/heatmap/log/`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ email: user.email })

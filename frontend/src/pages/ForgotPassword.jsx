@@ -33,7 +33,7 @@ const ForgotPassword = () => {
     if (!canResend) return;
     setIsLoading(true);
     try {
-      const response = await axios.post(`http://${window.location.hostname}:8000/api/send-otp/`, { email, role: 'admin' });
+      const response = await axios.post(`https://kravia.onrender.com/api/send-otp/`, { email, role: 'admin' });
       if (response.status === 200) {
         msg('success', 'OTP resent to your email.');
         setTimer(60);
@@ -73,7 +73,7 @@ const ForgotPassword = () => {
     setIsLoading(true);
     msg('', '');
     try {
-      const response = await axios.post(`http://${window.location.hostname}:8000/api/send-otp/`, { email, role: 'admin' });
+      const response = await axios.post(`https://kravia.onrender.com/api/send-otp/`, { email, role: 'admin' });
       if (response.status === 200) {
         msg('success', 'OTP sent to your email.');
         setStep('otp');
@@ -95,7 +95,7 @@ const ForgotPassword = () => {
     setIsLoading(true);
     msg('', '');
     try {
-      const response = await axios.post(`http://${window.location.hostname}:8000/api/verify-otp/`, { email, otp: otpValue });
+      const response = await axios.post(`https://kravia.onrender.com/api/verify-otp/`, { email, otp: otpValue });
       if (response.status === 200) {
         msg('success', 'OTP verified. Now set your new password.');
         setStep('reset');
@@ -116,7 +116,7 @@ const ForgotPassword = () => {
     setIsLoading(true);
     msg('', '');
     try {
-      const response = await axios.post(`http://${window.location.hostname}:8000/api/reset-password/`, { email, otp: otp.join(''), new_password: newPassword });
+      const response = await axios.post(`https://kravia.onrender.com/api/reset-password/`, { email, otp: otp.join(''), new_password: newPassword });
       if (response.status === 200) {
         msg('success', 'Password reset successful! Redirecting to login...');
         setTimeout(() => navigate('/login/admin'), 2000);

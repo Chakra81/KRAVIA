@@ -39,7 +39,7 @@ const Sidebar = () => {
     if (!user) return;
     const fetchCounts = async () => {
       try {
-        const response = await axios.get(`http://${window.location.hostname}:8000/api/unread-counts/`, {
+        const response = await axios.get(`https://kravia.onrender.com/api/unread-counts/`, {
           params: { user_email: user.email }
         });
         const counts = response.data;
@@ -51,7 +51,7 @@ const Sidebar = () => {
 
       // Fetch unread notification count
       try {
-        const notifRes = await axios.get(`http://${window.location.hostname}:8000/api/notifications/`, {
+        const notifRes = await axios.get(`https://kravia.onrender.com/api/notifications/`, {
           params: { email: user.email }
         });
         const notifs = notifRes.data?.notifications || notifRes.data || [];
@@ -63,7 +63,7 @@ const Sidebar = () => {
 
       if (user.role === 'admin') {
         try {
-          const response = await axios.get(`http://${window.location.hostname}:8000/api/list-students/`);
+          const response = await axios.get(`https://kravia.onrender.com/api/list-students/`);
           const pending = response.data.filter(s => !s.is_approved).length;
           setPendingStudents(pending);
         } catch (err) {

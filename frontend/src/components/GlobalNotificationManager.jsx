@@ -16,7 +16,7 @@ const GlobalNotificationManager = () => {
     if (!user) return; // Allow all authenticated users to receive notifications
 
     // Connect to WebSocket for real-time notifications
-    const wsUrl = `ws://${window.location.hostname}:8000/ws/notifications/${user.id}/`;
+    const wsUrl = `wss://kravia.onrender.com/ws/notifications/${user.id}/`;
     const ws = new WebSocket(wsUrl);
 
     ws.onmessage = (event) => {

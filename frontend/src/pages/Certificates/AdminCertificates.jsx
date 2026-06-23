@@ -5,7 +5,7 @@ import { Award, CheckCircle, XCircle, Download, Plus, Search, RefreshCw, Zap } f
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
 
-const BASE = `http://${window.location.hostname}:8000`;
+const BASE = `https://kravia.onrender.com`;
 const COLORS = ['#6366f1','#8b5cf6','#06b6d4','#10b981','#f59e0b','#ef4444'];
 
 function StatCard({ icon: Icon, label, value, color, delay }) {
@@ -30,8 +30,8 @@ function GenerateModal({ onClose, onSuccess, adminEmail }) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetch(`http://${window.location.hostname}:8000/api/list-students/`).then(r=>r.json()).then(setStudents).catch(console.error);
-    fetch(`http://${window.location.hostname}:8000/api/list-courses/`).then(r=>r.json()).then(d=>setCourses(Array.isArray(d)?d:d.courses||[])).catch(console.error);
+    fetch(`https://kravia.onrender.com/api/list-students/`).then(r=>r.json()).then(setStudents).catch(console.error);
+    fetch(`https://kravia.onrender.com/api/list-courses/`).then(r=>r.json()).then(d=>setCourses(Array.isArray(d)?d:d.courses||[])).catch(console.error);
   }, []);
 
   const handleSubmit = async e => {

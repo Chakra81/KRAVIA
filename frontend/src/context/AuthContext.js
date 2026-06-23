@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         try {
-            await axios.post(`http://${window.location.hostname}:8000/api/logout/`);
+            await axios.post(`https://kravia.onrender.com/api/logout/`);
         } catch (error) {
             console.error('Logout error:', error);
         }

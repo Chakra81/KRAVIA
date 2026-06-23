@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 
-const api = axios.create({ baseURL: `http://${window.location.hostname}:8000` });
+const api = axios.create({ baseURL: `https://kravia.onrender.com` });
 
 const NotificationSettings = () => {
   const [settings, setSettings] = useState({

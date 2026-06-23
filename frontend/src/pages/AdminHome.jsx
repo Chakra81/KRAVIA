@@ -150,7 +150,7 @@ const AdminHome = () => {
     setIsSending(true);
     try {
       const email = localStorage.getItem('userEmail');
-      await axios.post(`http://${window.location.hostname}:8000/api/notifications/send-global/`, {
+      await axios.post(`https://kravia.onrender.com/api/notifications/send-global/`, {
         ...notificationForm,
         email
       });
@@ -168,7 +168,7 @@ const AdminHome = () => {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const res = await axios.get(`http://${window.location.hostname}:8000/api/admin-analytics/`);
+        const res = await axios.get(`https://kravia.onrender.com/api/admin-analytics/`);
         setAnalytics(res.data);
       } catch (err) {
         console.error("Failed to fetch analytics:", err);

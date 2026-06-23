@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE = `http://${window.location.hostname}:8000/api`;
+const API_BASE = `https://kravia.onrender.com/api`;
 
 const getUserEmail = () => {
   const storedUser = localStorage.getItem('user');

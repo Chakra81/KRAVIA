@@ -15,7 +15,7 @@ const EnrollAll = () => {
   const fetchStudents = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(`http://${window.location.hostname}:8000/api/list-students/`);
+      const response = await axios.get(`https://kravia.onrender.com/api/list-students/`);
       setStudents(response.data);
     } catch (err) {
       toast.error('Failed to fetch students');
@@ -31,7 +31,7 @@ const EnrollAll = () => {
   const handleEnrollAll = async () => {
     setIsSubmitting(true);
     try {
-      const response = await axios.post(`http://${window.location.hostname}:8000/api/approve-all-students/`);
+      const response = await axios.post(`https://kravia.onrender.com/api/approve-all-students/`);
       if (response.status === 200) {
         toast.success('All pending students enrolled successfully!');
         fetchStudents();
@@ -46,7 +46,7 @@ const EnrollAll = () => {
   const handleEnroll = async (id) => {
     setIsSubmitting(true);
     try {
-      const response = await axios.post(`http://${window.location.hostname}:8000/api/approve-student/${id}/`);
+      const response = await axios.post(`https://kravia.onrender.com/api/approve-student/${id}/`);
       if (response.status === 200) {
         toast.success('Student enrolled successfully!');
         fetchStudents();

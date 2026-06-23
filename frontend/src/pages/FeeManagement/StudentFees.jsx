@@ -27,7 +27,7 @@ function CollectFeeModal({ fee, onClose, onSuccess, adminEmail }) {
     if (!form.amount || parseFloat(form.amount) <= 0) return toast.error('Enter a valid amount');
     setLoading(true);
     try {
-      const res = await fetch(`http://${window.location.hostname}:8000/api/fees/collect/`, {
+      const res = await fetch(`https://kravia.onrender.com/api/fees/collect/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ fee_id: fee.id, email: adminEmail, ...form })
@@ -118,13 +118,13 @@ function AddFeeModal({ onClose, onSuccess, adminEmail }) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetch(`http://${window.location.hostname}:8000/api/list-students/`).then(r => r.json()).then(setStudents).catch(console.error);
-    fetch(`http://${window.location.hostname}:8000/api/list-courses/`).then(r => r.json()).then(d => setCourses(Array.isArray(d) ? d : d.courses || [])).catch(console.error);
+    fetch(`https://kravia.onrender.com/api/list-students/`).then(r => r.json()).then(setStudents).catch(console.error);
+    fetch(`https://kravia.onrender.com/api/list-courses/`).then(r => r.json()).then(d => setCourses(Array.isArray(d) ? d : d.courses || [])).catch(console.error);
   }, []);
 
   useEffect(() => {
     if (!form.course_id) return;
-    fetch(`http://${window.location.hostname}:8000/api/list-courses/`).then(r => r.json()).then(d => {
+    fetch(`https://kravia.onrender.com/api/list-courses/`).then(r => r.json()).then(d => {
       const list = Array.isArray(d) ? d : d.courses || [];
       const c = list.find(x => String(x.id) === String(form.course_id));
       setBatches(c?.batches || []);
@@ -135,7 +135,7 @@ function AddFeeModal({ onClose, onSuccess, adminEmail }) {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch(`http://${window.location.hostname}:8000/api/fees/`, {
+      const res = await fetch(`https://kravia.onrender.com/api/fees/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: adminEmail, ...form })
@@ -249,7 +249,7 @@ export default function StudentFees({ onCollect }) {
   const PER_PAGE = 10;
 
   const fetchFees = useCallback(() => {
-    let url = `http://${window.location.hostname}:8000/api/fees/?email=${user?.email}`;
+    let url = `https://kravia.onrender.com/api/fees/?email=${user?.email}`;
     if (statusFilter) url += `&status=${statusFilter}`;
     if (search) url += `&search=${encodeURIComponent(search)}`;
     fetch(url)
@@ -267,7 +267,7 @@ export default function StudentFees({ onCollect }) {
     if (!feeToDelete) return;
     setIsDeleting(true);
     try {
-      const res = await fetch(`http://${window.location.hostname}:8000/api/fees/${feeToDelete.id}/?email=${user?.email}`, {
+      const res = await fetch(`https://kravia.onrender.com/api/fees/${feeToDelete.id}/?email=${user?.email}`, {
         method: 'DELETE'
       });
       if (!res.ok) throw new Error('Failed to delete fee record');

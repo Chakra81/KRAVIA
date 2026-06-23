@@ -61,8 +61,8 @@ export default function StudentFeePortal() {
 
   const fetchData = useCallback(() => {
     Promise.all([
-      fetch(`http://${window.location.hostname}:8000/api/fees/my/?email=${user?.email}`).then(r => r.json()),
-      fetch(`http://${window.location.hostname}:8000/api/fees/history/?email=${user?.email}`).then(r => r.json()),
+      fetch(`https://kravia.onrender.com/api/fees/my/?email=${user?.email}`).then(r => r.json()),
+      fetch(`https://kravia.onrender.com/api/fees/history/?email=${user?.email}`).then(r => r.json()),
     ]).then(([f, p]) => {
       setFees(Array.isArray(f) ? f : []);
       setPayments(Array.isArray(p) ? p : []);
@@ -75,7 +75,7 @@ export default function StudentFeePortal() {
   const handleDownload = async (paymentId) => {
     setLoadingReceipt(paymentId);
     try {
-      const res = await fetch(`http://${window.location.hostname}:8000/api/fees/receipt/${paymentId}/?email=${user?.email}`);
+      const res = await fetch(`https://kravia.onrender.com/api/fees/receipt/${paymentId}/?email=${user?.email}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       generatePDF(data);

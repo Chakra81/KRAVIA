@@ -53,8 +53,8 @@ const LiveSessions = () => {
   const fetchCourses = async () => {
     try {
       const endpoint = user?.role === 'trainer' 
-        ? `http://${window.location.hostname}:8000/api/trainer/my-courses/?email=${user.email}` 
-        : `http://${window.location.hostname}:8000/api/list-courses/`;
+        ? `https://kravia.onrender.com/api/trainer/my-courses/?email=${user.email}` 
+        : `https://kravia.onrender.com/api/list-courses/`;
       const response = await axios.get(endpoint);
       // For trainers, the API returns objects with `course_id` and `course_title`
       const formattedCourses = user?.role === 'trainer' 
@@ -194,7 +194,7 @@ const LiveSessions = () => {
       
       // Log activity to heatmap
       try {
-          await axios.post(`http://${window.location.hostname}:8000/api/heatmap/log/`, { email: user.email });
+          await axios.post(`https://kravia.onrender.com/api/heatmap/log/`, { email: user.email });
       } catch (err) {
           console.error('Failed to log activity', err);
       }
