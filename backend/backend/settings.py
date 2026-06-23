@@ -94,7 +94,7 @@ CHANNEL_LAYERS = {
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-if os.getenv('DB_HOST'):
+if os.getenv('DB_HOST') and not (os.getenv('RENDER') == 'true' and os.getenv('DB_HOST') == 'localhost'):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
