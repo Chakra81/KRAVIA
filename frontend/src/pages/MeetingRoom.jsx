@@ -288,7 +288,7 @@ const MeetingRoom = () => {
       setUiState('error');
       joinedRef.current = false;
     });
-  }, [sessionId, user, userIsHost, navigate, cleanup]);
+  }, [sessionId, user, navigate, cleanup]);
 
   // ── student polling ────────────────────────────────────────────────────────
   const startPolling = useCallback((session) => {

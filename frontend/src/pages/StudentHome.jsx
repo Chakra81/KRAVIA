@@ -230,7 +230,6 @@ const StudentHome = () => {
         setCalendarEvents([...formatLive, ...formatAssign]);
 
         // Build upcoming classes list (scheduled or live, not ended)
-        const now = new Date();
         const upcoming = Array.isArray(liveData)
           ? liveData
               .filter(ls => ls.status !== 'ended')
