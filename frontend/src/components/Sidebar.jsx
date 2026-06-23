@@ -23,13 +23,16 @@ import {
   FileText,
   Compass,
   IndianRupee,
-  Bell
+  Bell,
+  Menu,
+  X
 } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 
 const Sidebar = () => {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [totalUnread, setTotalUnread] = useState(0);
   const [pendingStudents, setPendingStudents] = useState(0);
@@ -133,7 +136,28 @@ const Sidebar = () => {
 
   return (
     <>
-      <div className={`fixed left-0 top-0 h-screen w-64 bg-[var(--bg-card)] flex flex-col border-r border-[var(--border)] shadow-xl z-50 transition-colors duration-300`}>
+      {/* Hamburger Toggle Button for Mobile */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="fixed top-4 left-4 z-[60] p-2.5 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl text-[var(--text-main)] shadow-xl md:hidden hover:bg-[var(--glass-hover)] active:scale-95 transition-all flex items-center justify-center"
+      >
+        {isOpen ? <X size={20} /> : <Menu size={20} />}
+      </button>
+
+      {/* Overlay Backdrop for Mobile */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.5 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsOpen(false)}
+            className="fixed inset-0 bg-black z-40 md:hidden"
+          />
+        )}
+      </AnimatePresence>
+
+      <div className={`fixed left-0 top-0 h-screen w-64 bg-[var(--bg-card)] flex flex-col border-r border-[var(--border)] shadow-xl z-50 transition-all duration-300 md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className={`p-6 flex flex-col items-center border-b border-[var(--border)] flex-shrink-0`}>
           <div className="w-full flex justify-between items-center mb-4">
             <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center shadow-inner overflow-hidden border border-indigo-100">
@@ -149,6 +173,7 @@ const Sidebar = () => {
             <NavLink
               key={item.name}
               to={item.path}
+              onClick={() => setIsOpen(false)}
               className={({ isActive }) =>
                 `flex items-center px-6 py-4 transition-all duration-300 gap-4 ${
                   isActive 
@@ -180,7 +205,7 @@ const Sidebar = () => {
 
         <div className={`p-4 mt-auto border-t border-[var(--border)] flex-shrink-0`}>
           <button 
-            onClick={() => setShowConfirm(true)}
+            onClick={() => { setIsOpen(false); setShowConfirm(true); }}
             className={`flex items-center gap-4 px-6 py-4 w-full transition-all duration-300 rounded-lg group text-[var(--text-muted)] hover:bg-[var(--glass)] hover:text-[var(--text-main)]`}
           >
             <LogOut size={20} className="group-hover:translate-x-1 transition-transform text-rose-500" />
