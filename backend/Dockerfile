@@ -26,5 +26,8 @@ COPY . .
 
 EXPOSE 8000
 
-# Start Django with Gunicorn (3 workers for production)
-CMD ["gunicorn", "backend.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "120"]
+# Copy and use startup script (runs migrations + creates admin user + starts gunicorn)
+COPY start.sh .
+RUN chmod +x start.sh
+
+CMD ["./start.sh"]
