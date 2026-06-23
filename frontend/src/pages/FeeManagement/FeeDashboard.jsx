@@ -36,7 +36,7 @@ export default function FeeDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`https://kravia.onrender.com/api/fees/analytics/?email=${user?.email}`)
+    fetch(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/fees/analytics/?email=${user?.email}`)
       .then(r => r.json())
       .then(d => { setData(d); setLoading(false); })
       .catch(() => setLoading(false));

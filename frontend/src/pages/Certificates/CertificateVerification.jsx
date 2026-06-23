@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useParams, Link } from 'react-router-dom';
 import { ShieldCheck, ShieldX, Award, CheckCircle, XCircle, Loader2, Calendar, User, BookOpen, ArrowLeft } from 'lucide-react';
 
-const BASE = `https://kravia.onrender.com`;
+const BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000' : 'https://kravia.onrender.com');
 
 export default function CertificateVerification() {
   const { certificateId } = useParams();

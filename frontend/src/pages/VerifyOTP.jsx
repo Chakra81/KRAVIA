@@ -40,7 +40,7 @@ const VerifyOTP = () => {
 
     setIsLoading(true);
     try {
-      const response = await axios.post(`https://kravia.onrender.com/api/send-otp/`, {
+      const response = await axios.post(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/send-otp/`, {
         email,
         role,       // pass role so backend can store it
         password    // pass password for trainer validation
@@ -85,7 +85,7 @@ const VerifyOTP = () => {
 
   try {
     const response = await axios.post(
-      `https://kravia.onrender.com/api/verify-otp/`,
+      `${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/verify-otp/`,
       {
         email,
         otp: otpValue,

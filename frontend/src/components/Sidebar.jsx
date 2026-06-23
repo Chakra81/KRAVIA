@@ -42,7 +42,7 @@ const Sidebar = () => {
     if (!user) return;
     const fetchCounts = async () => {
       try {
-        const response = await axios.get(`https://kravia.onrender.com/api/unread-counts/`, {
+        const response = await axios.get(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/unread-counts/`, {
           params: { user_email: user.email }
         });
         const counts = response.data;
@@ -54,7 +54,7 @@ const Sidebar = () => {
 
       // Fetch unread notification count
       try {
-        const notifRes = await axios.get(`https://kravia.onrender.com/api/notifications/`, {
+        const notifRes = await axios.get(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/notifications/`, {
           params: { email: user.email }
         });
         const notifs = notifRes.data?.notifications || notifRes.data || [];
@@ -66,7 +66,7 @@ const Sidebar = () => {
 
       if (user.role === 'admin') {
         try {
-          const response = await axios.get(`https://kravia.onrender.com/api/list-students/`);
+          const response = await axios.get(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/list-students/`);
           const pending = response.data.filter(s => !s.is_approved).length;
           setPendingStudents(pending);
         } catch (err) {

@@ -65,7 +65,7 @@ const ChangePassword = () => {
 
     setIsSubmitting(true);
     try {
-      const response = await fetch(`https://kravia.onrender.com/api/change-password/`, {
+      const response = await fetch(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/change-password/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -14,7 +14,7 @@ import toast from 'react-hot-toast';
 import jsPDF from 'jspdf';
 import confetti from 'canvas-confetti';
 
-const API_BASE = `https://kravia.onrender.com/api/ai`;
+const API_BASE = `${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/ai`;
 
 const AIStudyAssistant = () => {
   const { user } = useAuth();

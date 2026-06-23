@@ -127,7 +127,7 @@ export default function PaymentHistory() {
   const isAdmin = user?.role === 'admin';
 
   const fetchPayments = useCallback(() => {
-    let url = `https://kravia.onrender.com/api/fees/history/?email=${user?.email}`;
+    let url = `${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/fees/history/?email=${user?.email}`;
     if (search) url += `&search=${encodeURIComponent(search)}`;
     if (methodFilter) url += `&method=${methodFilter}`;
     fetch(url)
@@ -141,7 +141,7 @@ export default function PaymentHistory() {
   const handleDownloadReceipt = async (paymentId) => {
     setLoadingReceipt(paymentId);
     try {
-      const res = await fetch(`https://kravia.onrender.com/api/fees/receipt/${paymentId}/?email=${user?.email}`);
+      const res = await fetch(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/fees/receipt/${paymentId}/?email=${user?.email}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to load receipt');
       generatePDF(data);

@@ -6,7 +6,7 @@ import {
 import jsPDF from 'jspdf';
 import toast from 'react-hot-toast';
 
-const BASE = `https://kravia.onrender.com`;
+const BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000' : 'https://kravia.onrender.com');
 
 async function downloadCertificatePDF(cert, onDone) {
   try {

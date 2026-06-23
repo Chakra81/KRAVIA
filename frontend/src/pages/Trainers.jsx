@@ -9,7 +9,7 @@ import { useTheme } from '../context/ThemeContext';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-const API = `https://kravia.onrender.com/api`;
+const API = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api');
 
 
 

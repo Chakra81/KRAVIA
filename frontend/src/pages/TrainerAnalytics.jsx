@@ -5,7 +5,7 @@ import {
 } from 'recharts';
 import axios from 'axios';
 
-const API = 'https://kravia.onrender.com/api';
+const API = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api');
 
 const PIE_COLORS = ['#6C63FF', '#48BB78', '#F6AD55', '#FC8181', '#63B3ED'];
 

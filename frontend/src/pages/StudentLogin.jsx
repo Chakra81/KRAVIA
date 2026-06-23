@@ -7,8 +7,8 @@ import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
 
 const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-  ? 'http://127.0.0.1:8000/api' 
-  : 'https://kravia.onrender.com/api';
+  ? '${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}' 
+  : '${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}';
 
 const StudentLogin = () => {
   const navigate = useNavigate();

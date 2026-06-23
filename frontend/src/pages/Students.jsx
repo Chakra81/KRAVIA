@@ -6,7 +6,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import ExportModule from '../components/ExportModule';
 
-const API = `https://kravia.onrender.com/api`;
+const API = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api');
 
 const Students = () => {
   useTheme();

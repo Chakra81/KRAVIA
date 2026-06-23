@@ -61,8 +61,8 @@ export default function StudentFeePortal() {
 
   const fetchData = useCallback(() => {
     Promise.all([
-      fetch(`https://kravia.onrender.com/api/fees/my/?email=${user?.email}`).then(r => r.json()),
-      fetch(`https://kravia.onrender.com/api/fees/history/?email=${user?.email}`).then(r => r.json()),
+      fetch(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/fees/my/?email=${user?.email}`).then(r => r.json()),
+      fetch(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/fees/history/?email=${user?.email}`).then(r => r.json()),
     ]).then(([f, p]) => {
       setFees(Array.isArray(f) ? f : []);
       setPayments(Array.isArray(p) ? p : []);
@@ -75,7 +75,7 @@ export default function StudentFeePortal() {
   const handleDownload = async (paymentId) => {
     setLoadingReceipt(paymentId);
     try {
-      const res = await fetch(`https://kravia.onrender.com/api/fees/receipt/${paymentId}/?email=${user?.email}`);
+      const res = await fetch(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/fees/receipt/${paymentId}/?email=${user?.email}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       generatePDF(data);

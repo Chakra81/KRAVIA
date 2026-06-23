@@ -13,7 +13,7 @@ const ATSChecker = ({ email, onAtsScoreUpdate }) => {
     try {
       setLoading(true);
       setError('');
-      const response = await axios.post(`https://kravia.onrender.com/api/resume/ats-score/`, { email, job_description: jobDescription });
+      const response = await axios.post(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/resume/ats-score/`, { email, job_description: jobDescription });
       setResults(response.data);
       if (onAtsScoreUpdate && response.data.ats_score) {
         onAtsScoreUpdate(response.data.ats_score);

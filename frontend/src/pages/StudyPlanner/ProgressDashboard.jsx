@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 
-const API = 'https://kravia.onrender.com/api';
+const API = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api');
 
 const ProgressDashboard = () => {
   const { user } = useAuth();

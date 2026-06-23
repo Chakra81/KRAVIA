@@ -56,7 +56,7 @@ const ResumeBuilder = () => {
     autoSaveTimer.current = setTimeout(async () => {
       try {
         const payload = { ...data, email };
-        await axios.post(`https://kravia.onrender.com/api/resume/update/`, payload);
+        await axios.post(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/resume/update/`, payload);
         setAutoSaveStatus('saved');
         setTimeout(() => setAutoSaveStatus('idle'), 3000);
       } catch {
@@ -68,7 +68,7 @@ const ResumeBuilder = () => {
   const fetchResume = async (email) => {
     try {
       setLoading(true);
-      const res = await axios.get(`https://kravia.onrender.com/api/resume/?email=${email}`);
+      const res = await axios.get(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/resume/?email=${email}`);
       setResumeData(prev => ({ ...prev, ...res.data }));
     } catch (err) {
       console.error('Error fetching resume', err);
@@ -81,7 +81,7 @@ const ResumeBuilder = () => {
     if (!user) return;
     try {
       setLoading(true);
-      const res = await axios.post(`https://kravia.onrender.com/api/resume/import-data/`, { email: user.email });
+      const res = await axios.post(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/resume/import-data/`, { email: user.email });
       setResumeData(prev => ({ ...prev, ...res.data }));
       toast.success('Platform data imported successfully!');
     } catch (err) {
@@ -96,7 +96,7 @@ const ResumeBuilder = () => {
     try {
       setSaving(true);
       const payload = { ...resumeData, email: user.email };
-      const res = await axios.post(`https://kravia.onrender.com/api/resume/update/`, payload);
+      const res = await axios.post(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/resume/update/`, payload);
       setResumeData(prev => ({ ...prev, ...res.data }));
       toast.success('Resume saved successfully!');
     } catch (err) {
@@ -136,7 +136,7 @@ const ResumeBuilder = () => {
     try {
       setSaving(true);
       const payload = { ...resumeData, email: user.email };
-      const res = await axios.post(`https://kravia.onrender.com/api/resume/update/`, payload);
+      const res = await axios.post(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/resume/update/`, payload);
       setResumeData(prev => ({ ...prev, ...res.data }));
       setIsSubmitted(true);
       // Refresh / clear the UI state for a fresh start
@@ -163,7 +163,7 @@ const ResumeBuilder = () => {
     
     // Notify backend
     try {
-      await axios.post(`https://kravia.onrender.com/api/resume/download/`, { email: user?.email });
+      await axios.post(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/resume/download/`, { email: user?.email });
       // Fetch resume again to get the updated versions list
       fetchResume(user?.email);
     } catch(e) {}
@@ -185,7 +185,7 @@ const ResumeBuilder = () => {
   const handleRestoreVersion = async (versionId) => {
     try {
       setLoading(true);
-      await axios.post(`https://kravia.onrender.com/api/resume/restore-version/`, { email: user.email, version_id: versionId });
+      await axios.post(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/resume/restore-version/`, { email: user.email, version_id: versionId });
       toast.success('Successfully opened downloaded resume!');
       fetchResume(user.email);
     } catch (err) {
@@ -199,7 +199,7 @@ const ResumeBuilder = () => {
   const autoGenerateSummary = async () => {
     try {
       setGeneratingSummary(true);
-      const res = await axios.post(`https://kravia.onrender.com/api/resume/generate-summary/`, {
+      const res = await axios.post(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/resume/generate-summary/`, {
         skills: resumeData.skills.map(s => s.skill_name),
         projects: resumeData.projects
       });
@@ -251,7 +251,7 @@ const ResumeBuilder = () => {
   const handleDeleteResume = async () => {
     try {
       setLoading(true);
-      await axios.delete(`https://kravia.onrender.com/api/resume/delete/?email=${user.email}`);
+      await axios.delete(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/resume/delete/?email=${user.email}`);
       // Reset to blank state
       setResumeData({
         phone: '', address: '', linkedin: '', github: '', portfolio: '',

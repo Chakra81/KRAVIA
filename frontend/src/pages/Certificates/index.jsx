@@ -7,7 +7,7 @@ import CertificatePreview from './CertificatePreview';
 import AdminCertificates from './AdminCertificates';
 import { downloadCertificatePDF } from './CertificatePreview';
 
-const BASE = `https://kravia.onrender.com`;
+const BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000' : 'https://kravia.onrender.com');
 
 function StudentCertificates() {
   const { user } = useAuth();

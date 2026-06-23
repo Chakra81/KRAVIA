@@ -15,7 +15,7 @@ const EnrollAll = () => {
   const fetchStudents = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(`https://kravia.onrender.com/api/list-students/`);
+      const response = await axios.get(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/list-students/`);
       setStudents(response.data);
     } catch (err) {
       toast.error('Failed to fetch students');
@@ -31,7 +31,7 @@ const EnrollAll = () => {
   const handleEnrollAll = async () => {
     setIsSubmitting(true);
     try {
-      const response = await axios.post(`https://kravia.onrender.com/api/approve-all-students/`);
+      const response = await axios.post(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/approve-all-students/`);
       if (response.status === 200) {
         toast.success('All pending students enrolled successfully!');
         fetchStudents();
@@ -46,7 +46,7 @@ const EnrollAll = () => {
   const handleEnroll = async (id) => {
     setIsSubmitting(true);
     try {
-      const response = await axios.post(`https://kravia.onrender.com/api/approve-student/${id}/`);
+      const response = await axios.post(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/approve-student/${id}/`);
       if (response.status === 200) {
         toast.success('Student enrolled successfully!');
         fetchStudents();

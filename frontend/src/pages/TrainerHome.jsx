@@ -35,9 +35,9 @@ const TrainerHome = () => {
       if (!user?.email) return;
       try {
         const [dashRes, coursesRes, studentsRes] = await Promise.all([
-          axios.get(`https://kravia.onrender.com/api/trainer-dashboard/?email=${user.email}`),
-          axios.get(`https://kravia.onrender.com/api/trainer/my-courses/?email=${user.email}`),
-          axios.get(`https://kravia.onrender.com/api/trainer/my-students/?email=${user.email}`)
+          axios.get(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/trainer-dashboard/?email=${user.email}`),
+          axios.get(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/trainer/my-courses/?email=${user.email}`),
+          axios.get(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/trainer/my-students/?email=${user.email}`)
         ]);
         
         setStats(dashRes.data);

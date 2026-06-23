@@ -61,9 +61,9 @@ const Chat = () => {
     setIsLoading(true);
     try {
       const [adminsRes, trainersRes, studentsRes] = await Promise.all([
-        axios.get(`https://kravia.onrender.com/api/list-admins/`),
-        axios.get(`https://kravia.onrender.com/api/list-trainers/`),
-        axios.get(`https://kravia.onrender.com/api/list-students/`)
+        axios.get(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/list-admins/`),
+        axios.get(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/list-trainers/`),
+        axios.get(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/list-students/`)
       ]);
 
       let allContacts = [
@@ -92,7 +92,7 @@ const Chat = () => {
   const fetchUnreadCounts = useCallback(async () => {
     if (!user) return;
     try {
-      const response = await axios.get(`https://kravia.onrender.com/api/unread-counts/`, {
+      const response = await axios.get(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/unread-counts/`, {
         params: { user_email: user.email }
       });
       setUnreadCounts(response.data);
@@ -104,7 +104,7 @@ const Chat = () => {
   const fetchMessages = useCallback(async () => {
     if (!selectedContact || !user) return;
     try {
-      const response = await axios.get(`https://kravia.onrender.com/api/get-messages/`, {
+      const response = await axios.get(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/get-messages/`, {
         params: {
           sender_email: user.email,
           receiver_email: selectedContact.email
@@ -250,7 +250,7 @@ const Chat = () => {
 
     setIsSending(true);
     try {
-      const response = await axios.post(`https://kravia.onrender.com/api/send-message/`, {
+      const response = await axios.post(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}/send-message/`, {
         sender_email: user.email,
         receiver_email: selectedContact.email,
         text: message

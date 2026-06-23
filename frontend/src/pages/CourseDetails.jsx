@@ -33,7 +33,7 @@ const CourseDetails = () => {
   const [topicData, setTopicData] = useState({ title: '', videoUrl: '' });
 
   const [loading, setLoading] = useState(true);
-  const API_URL = `https://kravia.onrender.com/api`;
+  const API_URL = `${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/api' : 'https://kravia.onrender.com/api')}`;
 
   const fetchCourseDetails = useCallback(async () => {
     try {
