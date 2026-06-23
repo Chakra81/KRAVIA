@@ -5,7 +5,8 @@ import {
 } from 'recharts';
 import axios from 'axios';
 
-const API = 'http://localhost:8000/api';
+const API = 'https://kravia.onrender.com/api';
+
 const PIE_COLORS = ['#6C63FF', '#48BB78', '#F6AD55', '#FC8181', '#63B3ED'];
 
 // ── Custom Tooltip ──────────────────────────────────────────

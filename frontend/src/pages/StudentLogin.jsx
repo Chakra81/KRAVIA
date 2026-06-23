@@ -6,7 +6,7 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
 
-const API = 'http://localhost:8000/api';
+const API = 'https://kravia.onrender.com/api';
 
 const StudentLogin = () => {
   const navigate = useNavigate();
