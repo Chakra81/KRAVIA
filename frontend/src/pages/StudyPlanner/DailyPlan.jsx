@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 
-const API = 'http://127.0.0.1:8000/api';
+const API = 'https://kravia.onrender.com/api';
 
 const DailyPlan = () => {
   const { user } = useAuth();
