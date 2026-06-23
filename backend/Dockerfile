@@ -28,6 +28,6 @@ EXPOSE 8000
 
 # Copy and use startup script (runs migrations + creates admin user + starts gunicorn)
 COPY start.sh .
-RUN chmod +x start.sh
+RUN sed -i 's/\r//' start.sh && chmod +x start.sh
 
 CMD ["./start.sh"]
