@@ -160,12 +160,23 @@ const Sidebar = () => {
       <div className={`fixed left-0 top-0 h-screen w-64 bg-[var(--bg-card)] flex flex-col border-r border-[var(--border)] shadow-xl z-50 transition-all duration-300 lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className={`p-6 flex flex-col items-center border-b border-[var(--border)] flex-shrink-0`}>
           <div className="w-full flex justify-between items-center mb-4">
-            <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center shadow-inner overflow-hidden border border-indigo-100">
+            <NavLink
+              to="/home"
+              onClick={() => setIsOpen(false)}
+              className="w-12 h-12 rounded-xl bg-white flex items-center justify-center shadow-inner overflow-hidden border border-indigo-100 hover:ring-2 hover:ring-[var(--primary)] transition-all cursor-pointer"
+              title="Go to Dashboard"
+            >
               <img src="/logo.png" alt="Kravia Logo" className="w-10 h-10 object-contain" />
-            </div>
+            </NavLink>
             <ThemeToggle />
           </div>
-          <h1 className={`text-2xl font-black tracking-tight w-full text-[var(--text-main)]`}>KRAVIA</h1>
+          <NavLink
+            to="/home"
+            onClick={() => setIsOpen(false)}
+            className="text-2xl font-black tracking-tight w-full text-[var(--text-main)] hover:text-[var(--primary)] transition-colors cursor-pointer"
+          >
+            KRAVIA
+          </NavLink>
         </div>
 
         <nav className="flex-1 mt-6 overflow-y-auto">
