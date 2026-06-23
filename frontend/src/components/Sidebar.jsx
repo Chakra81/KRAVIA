@@ -139,7 +139,7 @@ const Sidebar = () => {
       {/* Hamburger Toggle Button for Mobile */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed top-4 left-4 z-[60] p-2.5 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl text-[var(--text-main)] shadow-xl md:hidden hover:bg-[var(--glass-hover)] active:scale-95 transition-all flex items-center justify-center"
+        className="fixed top-4 left-4 z-[60] p-2.5 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl text-[var(--text-main)] shadow-xl lg:hidden hover:bg-[var(--glass-hover)] active:scale-95 transition-all flex items-center justify-center"
       >
         {isOpen ? <X size={20} /> : <Menu size={20} />}
       </button>
@@ -152,12 +152,12 @@ const Sidebar = () => {
             animate={{ opacity: 0.5 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsOpen(false)}
-            className="fixed inset-0 bg-black z-40 md:hidden"
+            className="fixed inset-0 bg-black z-40 lg:hidden"
           />
         )}
       </AnimatePresence>
 
-      <div className={`fixed left-0 top-0 h-screen w-64 bg-[var(--bg-card)] flex flex-col border-r border-[var(--border)] shadow-xl z-50 transition-all duration-300 md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <div className={`fixed left-0 top-0 h-screen w-64 bg-[var(--bg-card)] flex flex-col border-r border-[var(--border)] shadow-xl z-50 transition-all duration-300 lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className={`p-6 flex flex-col items-center border-b border-[var(--border)] flex-shrink-0`}>
           <div className="w-full flex justify-between items-center mb-4">
             <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center shadow-inner overflow-hidden border border-indigo-100">

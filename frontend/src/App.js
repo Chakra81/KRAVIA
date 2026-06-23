@@ -64,7 +64,7 @@ const AdminLayout = ({ children }) => {
   return (
     <div className="flex min-h-screen bg-[var(--bg)] transition-colors duration-300">
       <Sidebar />
-      <div className="flex-1 md:ml-64 ml-0 pt-16 md:pt-0 bg-transparent min-h-screen transition-all duration-300">
+      <div className="flex-1 lg:ml-64 ml-0 pt-16 lg:pt-0 bg-transparent min-h-screen transition-all duration-300">
         <ProtectedRoute>
           {children}
         </ProtectedRoute>
