@@ -48,13 +48,25 @@ def send_otp(request):
     from_email = settings.DEFAULT_FROM_EMAIL
     recipient_list = [email]
 
+    # ── Always print OTP to console (dev fallback) ──────────────
+    print(f"\n{'='*50}")
+    print(f"  OTP GENERATED")
+    print(f"  Email : {email}")
+    print(f"  OTP   : {otp}")
+    print(f"  Role  : {role}")
+    print(f"{'='*50}\n")
+
     try:
         send_mail(subject, message, from_email, recipient_list)
-        print(f"OTP for {email}: {otp} | Role: {role}")
         return Response({'message': 'OTP sent successfully'}, status=status.HTTP_200_OK)
     except Exception as e:
-        print(f"Error sending email: {e}")
-        return Response({'error': f'Failed to send OTP email: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        print(f"[EMAIL ERROR] Could not send email to {email}: {e}")
+        # Still return success — OTP is stored in memory and visible in the console
+        # This allows development/testing even if email is misconfigured
+        return Response({
+            'message': 'OTP generated (email delivery failed — check backend console for OTP)',
+            'dev_note': str(e)
+        }, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 def verify_otp(request):
