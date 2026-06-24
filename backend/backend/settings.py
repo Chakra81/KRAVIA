@@ -227,13 +227,7 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-# Email Configuration
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_USE_SSL = False
-EMAIL_HOST_USER = os.getenv('EMAIL_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_PASSWORD')
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-EMAIL_TIMEOUT = 30  # Longer timeout for cloud servers
+# Email Configuration — using Resend API (HTTP-based, works on Render free tier)
+# SMTP is blocked by Render free tier; Resend uses HTTP so it always works.
+RESEND_API_KEY = os.getenv('RESEND_API_KEY', '')
+EMAIL_FROM = os.getenv('EMAIL_USER', 'onboarding@resend.dev')  # Use resend sandbox or your verified domain

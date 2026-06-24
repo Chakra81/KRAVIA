@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from django.core.mail import send_mail
+import resend
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -57,12 +57,27 @@ def send_otp(request):
     print(f"{'='*50}\n")
 
     try:
-        send_mail(subject, message, from_email, recipient_list)
+        resend.api_key = settings.RESEND_API_KEY
+        params = {
+            "from": f"KRAVIA <{settings.EMAIL_FROM}>",
+            "to": [email],
+            "subject": "Your OTP for Login",
+            "html": f"""
+                <div style="font-family:sans-serif;max-width:480px;margin:auto;padding:32px;background:#0f172a;border-radius:16px;color:#fff;">
+                    <h2 style="color:#6366f1;margin-bottom:8px;">KRAVIA – OTP Verification</h2>
+                    <p style="color:#94a3b8;">Your one-time password is:</p>
+                    <div style="background:#1e293b;border-radius:12px;padding:24px;text-align:center;margin:16px 0;">
+                        <span style="font-size:40px;font-weight:bold;letter-spacing:12px;color:#a5b4fc;">{otp}</span>
+                    </div>
+                    <p style="color:#64748b;font-size:13px;">This OTP is valid for 10 minutes. Do not share it with anyone.</p>
+                </div>
+            """,
+        }
+        resend.Emails.send(params)
         return Response({'message': 'OTP sent successfully'}, status=status.HTTP_200_OK)
     except Exception as e:
         print(f"[EMAIL ERROR] Could not send email to {email}: {e}")
         # Still return success — OTP is stored in memory and visible in the console
-        # This allows development/testing even if email is misconfigured
         return Response({
             'message': 'OTP generated (email delivery failed — check backend console for OTP)',
             'dev_note': str(e)
@@ -527,11 +542,25 @@ def add_student(request):
         )
         Enrollment.objects.create(student=user, batch=batch_obj)
         
-        # Send welcome email with credentials
-        subject = 'Welcome to Training Institute - Your Login Credentials'
-        message = f"Hi {name},\n\nWelcome to our Training Institute! Your account has been created successfully.\n\nHere are your login credentials:\nEmail: {email}\nPassword: {password}\n\nPlease login to our portal to access your courses: http://localhost:3000/login\n\nBest regards,\nTraining Institute Team"
+        # Send welcome email with credentials using Resend
         try:
-            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
+            resend.api_key = settings.RESEND_API_KEY
+            resend.Emails.send({
+                "from": f"KRAVIA <{settings.EMAIL_FROM}>",
+                "to": [email],
+                "subject": "Welcome to KRAVIA - Your Login Credentials",
+                "html": f"""
+                    <div style="font-family:sans-serif;max-width:480px;margin:auto;padding:32px;background:#0f172a;border-radius:16px;color:#fff;">
+                        <h2 style="color:#6366f1;">Welcome to KRAVIA, {name}! 🎓</h2>
+                        <p style="color:#94a3b8;">Your account has been created. Here are your login credentials:</p>
+                        <div style="background:#1e293b;border-radius:12px;padding:20px;margin:16px 0;">
+                            <p style="margin:4px 0;"><strong style="color:#a5b4fc;">Email:</strong> <span style="color:#e2e8f0;">{email}</span></p>
+                            <p style="margin:4px 0;"><strong style="color:#a5b4fc;">Password:</strong> <span style="color:#e2e8f0;">{password}</span></p>
+                        </div>
+                        <p style="color:#64748b;font-size:13px;">Please log in and change your password after first login.</p>
+                    </div>
+                """,
+            })
         except Exception as e:
             print(f"Failed to send credentials email to {email}: {e}")
 
