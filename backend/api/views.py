@@ -2,7 +2,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-import resend
+import requests
+GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxOyzGbhbVuVlRq1okQEF23T1bjZXUgOlKPDquCqsyvXBCobHDiZj_kqEWXnMTRjVAvhA/exec'
+GOOGLE_APPS_SCRIPT_SECRET = 'kravia_secret_key_2026'
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -57,12 +59,11 @@ def send_otp(request):
     print(f"{'='*50}\n")
 
     try:
-        resend.api_key = settings.RESEND_API_KEY
-        params = {
-            "from": f"KRAVIA <{settings.EMAIL_FROM}>",
-            "to": [email],
+        payload = {
+            "secret": GOOGLE_APPS_SCRIPT_SECRET,
+            "to": email,
             "subject": "Your OTP for Login",
-            "html": f"""
+            "body": f"""
                 <div style="font-family:sans-serif;max-width:480px;margin:auto;padding:32px;background:#0f172a;border-radius:16px;color:#fff;">
                     <h2 style="color:#6366f1;margin-bottom:8px;">KRAVIA – OTP Verification</h2>
                     <p style="color:#94a3b8;">Your one-time password is:</p>
@@ -71,9 +72,9 @@ def send_otp(request):
                     </div>
                     <p style="color:#64748b;font-size:13px;">This OTP is valid for 10 minutes. Do not share it with anyone.</p>
                 </div>
-            """,
+            """
         }
-        resend.Emails.send(params)
+        requests.post(GOOGLE_APPS_SCRIPT_URL, json=payload, timeout=15)
         return Response({'message': 'OTP sent successfully'}, status=status.HTTP_200_OK)
     except Exception as e:
         print(f"[EMAIL ERROR] Could not send email to {email}: {e}")
@@ -542,14 +543,13 @@ def add_student(request):
         )
         Enrollment.objects.create(student=user, batch=batch_obj)
         
-        # Send welcome email with credentials using Resend
+        # Send welcome email with credentials using Google Apps Script
         try:
-            resend.api_key = settings.RESEND_API_KEY
-            resend.Emails.send({
-                "from": f"KRAVIA <{settings.EMAIL_FROM}>",
-                "to": [email],
+            payload = {
+                "secret": GOOGLE_APPS_SCRIPT_SECRET,
+                "to": email,
                 "subject": "Welcome to KRAVIA - Your Login Credentials",
-                "html": f"""
+                "body": f"""
                     <div style="font-family:sans-serif;max-width:480px;margin:auto;padding:32px;background:#0f172a;border-radius:16px;color:#fff;">
                         <h2 style="color:#6366f1;">Welcome to KRAVIA, {name}! 🎓</h2>
                         <p style="color:#94a3b8;">Your account has been created. Here are your login credentials:</p>
@@ -559,8 +559,9 @@ def add_student(request):
                         </div>
                         <p style="color:#64748b;font-size:13px;">Please log in and change your password after first login.</p>
                     </div>
-                """,
-            })
+                """
+            }
+            requests.post(GOOGLE_APPS_SCRIPT_URL, json=payload, timeout=15)
         except Exception as e:
             print(f"Failed to send credentials email to {email}: {e}")
 
