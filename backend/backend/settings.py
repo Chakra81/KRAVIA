@@ -230,4 +230,5 @@ SIMPLE_JWT = {
 # Email Configuration — using Resend API (HTTP-based, works on Render free tier)
 # SMTP is blocked by Render free tier; Resend uses HTTP so it always works.
 RESEND_API_KEY = os.getenv('RESEND_API_KEY', '')
-EMAIL_FROM = os.getenv('EMAIL_USER', 'onboarding@resend.dev')  # Use resend sandbox or your verified domain
+# Use Resend's sandbox address — no domain verification needed
+EMAIL_FROM = 'onboarding@resend.dev'
