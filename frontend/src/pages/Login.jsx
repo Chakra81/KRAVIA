@@ -137,12 +137,7 @@ const Login = () => {
           </motion.button>
         </form>
 
-        <div className="mt-5 text-center text-[10px] text-slate-500">
-          Don't have an account? 
-          <Link to="/signup" className="text-indigo-400 hover:text-indigo-300 font-medium ml-1.5">
-            Create Account
-          </Link>
-        </div>
+
       </motion.div>
     </div>
   );
