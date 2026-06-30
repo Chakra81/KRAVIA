@@ -160,7 +160,7 @@ const StudentLogin = () => {
           }, 4000);
         }
       }
-    } catch { msg('error', 'Invalid OTP. Please try again.'); }
+    } catch (err) { msg('error', err.response?.data?.error || 'Invalid OTP. Please try again.'); }
     finally { setIsLoading(false); }
   };
 
@@ -185,7 +185,7 @@ const StudentLogin = () => {
     try {
       const res = await axios.post(`${API}/verify-otp/`, { email: forgotEmail, otp: forgotOtp.trim() });
       if (res.status === 200) { msg('success', 'OTP verified! Set your new password.'); setForgotStep('reset'); }
-    } catch { msg('error', 'Invalid OTP. Please try again.'); }
+    } catch (err) { msg('error', err.response?.data?.error || 'Invalid OTP. Please try again.'); }
     finally { setIsLoading(false); }
   };
 
@@ -348,7 +348,19 @@ const StudentLogin = () => {
                   <motion.button whileTap={{ scale: 0.98 }} type="submit" disabled={isLoading} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2 disabled:opacity-50">
                     {isLoading ? <Spinner /> : <><CheckCircle size={18} /> Verify & Create Account</>}
                   </motion.button>
-                  <button type="button" onClick={() => { setSignupStep('form'); setMessage({ type: '', text: '' }); }} className="w-full text-slate-400 hover:text-white text-sm text-center transition-colors">← Back to edit details</button>
+                  <div className="flex items-center justify-between">
+                    <button type="button" onClick={() => { setSignupStep('form'); setMessage({ type: '', text: '' }); }} className="text-slate-400 hover:text-white text-sm transition-colors">← Back to edit details</button>
+                    <button type="button" disabled={isLoading} onClick={async () => {
+                      setMessage({ type: '', text: '' });
+                      setSignupOtp('');
+                      setIsLoading(true);
+                      try {
+                        await axios.post(`${API}/send-otp/`, { email: signupData.email, role: 'student', password: signupData.password });
+                        msg('success', 'New OTP sent! Check your email.');
+                      } catch { msg('error', 'Failed to resend OTP. Please try again.'); }
+                      finally { setIsLoading(false); }
+                    }} className="text-indigo-400 hover:text-indigo-300 text-sm font-medium transition-colors disabled:opacity-50">Resend OTP</button>
+                  </div>
                 </motion.form>
               )}
 
