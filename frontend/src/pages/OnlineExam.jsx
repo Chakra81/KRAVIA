@@ -168,35 +168,45 @@ const OnlineExam = () => {
               exit={{ opacity: 0, y: -20 }}
               className="grid grid-cols-1 md:grid-cols-2 gap-6"
             >
-              {exams.map((exam) => (
-                <motion.div
-                  key={exam.id}
-                  whileHover={{ scale: 1.02 }}
-                  className="bg-[var(--glass)] border border-[var(--border)] rounded-3xl p-8 relative overflow-hidden group cursor-pointer"
-                  onClick={() => startExam(exam)}
-                >
-                  <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
-                    {exam.domain === 'Python' ? <Zap size={80} /> : <Brain size={80} />}
+              {exams.length === 0 ? (
+                <div className="col-span-full flex flex-col items-center justify-center py-24 text-center bg-[var(--glass)] border border-[var(--border)] rounded-3xl">
+                  <div className="w-24 h-24 bg-indigo-500/10 rounded-full flex items-center justify-center mb-6">
+                    <Target className="text-indigo-400" size={48} />
                   </div>
-                  <span className="px-3 py-1 bg-indigo-500/20 text-indigo-400 text-xs font-bold rounded-full uppercase tracking-widest mb-4 inline-block">
-                    {exam.difficulty}
-                  </span>
-                  <h3 className="text-2xl font-black text-[var(--text-main)] mb-2">{exam.title}</h3>
-                  <div className="flex gap-6 mt-6">
-                    <div className="flex items-center gap-2 text-[var(--text-muted)]">
-                      <Target size={16} />
-                      <span className="text-sm">{exam.questions.length} MCQs</span>
+                  <h3 className="text-2xl font-bold text-[var(--text-main)] mb-3">No Exams Available</h3>
+                  <p className="text-[var(--text-muted)] max-w-md mx-auto text-lg">You don't have any exams scheduled at the moment. Please check back later.</p>
+                </div>
+              ) : (
+                exams.map((exam) => (
+                  <motion.div
+                    key={exam.id}
+                    whileHover={{ scale: 1.02 }}
+                    className="bg-[var(--glass)] border border-[var(--border)] rounded-3xl p-8 relative overflow-hidden group cursor-pointer"
+                    onClick={() => startExam(exam)}
+                  >
+                    <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                      {exam.domain === 'Python' ? <Zap size={80} /> : <Brain size={80} />}
                     </div>
-                    <div className="flex items-center gap-2 text-[var(--text-muted)]">
-                      <Clock size={16} />
-                      <span className="text-sm">1 Min / Question</span>
+                    <span className="px-3 py-1 bg-indigo-500/20 text-indigo-400 text-xs font-bold rounded-full uppercase tracking-widest mb-4 inline-block">
+                      {exam.difficulty}
+                    </span>
+                    <h3 className="text-2xl font-black text-[var(--text-main)] mb-2">{exam.title}</h3>
+                    <div className="flex gap-6 mt-6">
+                      <div className="flex items-center gap-2 text-[var(--text-muted)]">
+                        <Target size={16} />
+                        <span className="text-sm">{exam.questions.length} MCQs</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-[var(--text-muted)]">
+                        <Clock size={16} />
+                        <span className="text-sm">1 Min / Question</span>
+                      </div>
                     </div>
-                  </div>
-                  <button className="mt-8 w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-2 shadow-xl shadow-indigo-600/20">
-                    <Play size={18} fill="currentColor" /> Start Exam
-                  </button>
-                </motion.div>
-              ))}
+                    <button className="mt-8 w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-2 shadow-xl shadow-indigo-600/20">
+                      <Play size={18} fill="currentColor" /> Start Exam
+                    </button>
+                  </motion.div>
+                ))
+              )}
             </motion.div>
           )}
 

@@ -17,8 +17,9 @@ from .serializers import (
 import random
 from django.utils import timezone
 from django.views.decorators.cache import cache_page
+from django.core.cache import cache
 
-otp_storage = {}  # { email: { 'otp': '123456', 'role': 'admin' } }
+OTP_TTL = 600  # 10 minutes
 
 @api_view(['POST'])
 def send_otp(request):
@@ -42,7 +43,7 @@ def send_otp(request):
             return Response({'error': 'No trainer account found with this email. Please contact your admin.'}, status=status.HTTP_404_NOT_FOUND)
 
     otp = str(random.randint(100000, 999999))
-    otp_storage[email] = {'otp': otp, 'role': role, 'password': password}  # store password with otp
+    cache.set(f'otp_{email}', {'otp': otp, 'role': role, 'password': password}, timeout=OTP_TTL)
 
     # Send Email
     subject = 'Your OTP for Login'
@@ -93,124 +94,105 @@ def verify_otp(request):
     if not email or not otp:
         return Response({'error': 'Email and OTP are required'}, status=status.HTTP_400_BAD_REQUEST)
 
-    stored_data = otp_storage.get(email)
+    stored_data = cache.get(f'otp_{email}')
 
-    # Support both old format (plain string) and new format (dict)
-    if isinstance(stored_data, dict):
-        stored_otp = stored_data.get('otp')
-        stored_role = stored_data.get('role', 'student')
-        stored_password = stored_data.get('password')
-    else:
-        stored_otp = stored_data
-        stored_password = None
-        # If no OTP in memory (server restart), try to recover role from DB
-        # so trainers don't get a 'role mismatch' error
-        stored_role = 'student'  # safe default
-        try:
-            existing_user = User.objects.get(email=email)
-            if hasattr(existing_user, 'profile'):
-                stored_role = existing_user.profile.role
-        except User.DoesNotExist:
-            pass
+    if not stored_data:
+        return Response({'error': 'OTP has expired or was never sent. Please request a new OTP.'}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Bulletproof developer bypass for OTP '123456'
-    if otp == '123456':
-        try:
-            existing_user = User.objects.get(email=email)
-            if hasattr(existing_user, 'profile'):
-                stored_role = existing_user.profile.role
-        except User.DoesNotExist:
-            pass
+    stored_otp = stored_data.get('otp')
+    stored_role = stored_data.get('role', 'student')
+    stored_password = stored_data.get('password')
 
-    if stored_otp == otp or otp == '123456':
-        if email in otp_storage:
-            del otp_storage[email]
+    if stored_otp != otp:
+        return Response({'error': 'Invalid OTP. Please try again.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # OTP matched — delete it from cache so it can't be reused
+    cache.delete(f'otp_{email}')
+
+    # Get or create user
+    user, created = User.objects.get_or_create(username=email, email=email)
+    
+    # Set password if provided
+    password_to_set = request.data.get('password') or stored_password
+    if password_to_set:
+        user.set_password(password_to_set)
+        user.save()
         
-        # Get or create user
-        user, created = User.objects.get_or_create(username=email, email=email)
+    if created and name:
+        user.first_name = name
+        user.save()
         
-        # Set password if provided
-        password_to_set = request.data.get('password') or stored_password
-        if password_to_set:
-            user.set_password(password_to_set)
-            user.save()
-            
-        if created and name:
-            user.first_name = name
-            user.save()
-            
-        profile, p_created = Profile.objects.get_or_create(user=user)
+    profile, p_created = Profile.objects.get_or_create(user=user)
+    
+    if p_created:
+        # Only block unauthorized role creation if the USER is also brand-new
+        # (i.e., someone is trying to self-register as trainer/admin via OTP).
+        # If the user already existed (created=False) but profile was missing,
+        # that is a data-integrity scenario - allow it.
+        if created and stored_role != 'student':
+            user.delete()
+            return Response({'error': 'Unauthorized role creation. Please contact admin.'}, status=status.HTTP_403_FORBIDDEN)
+        profile.role = stored_role
+        profile.raw_password = password_to_set
+        # Auto-approve trainers (they are pre-created by admin)
+        profile.is_approved = True if stored_role == 'trainer' else False
+        profile.save()
         
-        if p_created:
-            # Only block unauthorized role creation if the USER is also brand-new
-            # (i.e., someone is trying to self-register as trainer/admin via OTP).
-            # If the user already existed (created=False) but profile was missing,
-            # that is a data-integrity scenario - allow it.
-            if created and stored_role != 'student':
-                user.delete()
-                return Response({'error': 'Unauthorized role creation. Please contact admin.'}, status=status.HTTP_403_FORBIDDEN)
-            profile.role = stored_role
-            profile.raw_password = password_to_set
-            # Auto-approve trainers (they are pre-created by admin)
-            profile.is_approved = True if stored_role == 'trainer' else False
-            profile.save()
-            
-            # Notify admins if a new student registers
-            if stored_role == 'student':
-                try:
-                    from .models import Notification
-                    admins = Profile.objects.filter(role='admin')
-                    for admin_prof in admins:
-                        Notification.objects.create(
-                            user=admin_prof.user,
-                            title="New Student Enrollment 🎓",
-                            message=f"{user.first_name or email} has signed up and is pending your approval.",
-                            notification_type="student_approval"
-                        )
-                except Exception as e:
-                    print(f"Error creating enrollment notification: {e}")
-            
-            # handle enrollment if course_id is provided
-            course_id = request.data.get('course_id')
-            if course_id:
-                from .models import Course, Batch, Enrollment
-                import datetime
-                try:
-                    course_obj = Course.objects.get(pk=course_id)
-                    # Find or create a default batch for this course
-                    batch_obj, _ = Batch.objects.get_or_create(
-                        course=course_obj,
-                        name=f"{course_obj.title} - Main Batch",
-                        defaults={
-                            'start_date': datetime.date.today(),
-                            'end_date': datetime.date.today() + datetime.timedelta(days=90),
-                            'schedule_time': 'TBD'
-                        }
+        # Notify admins if a new student registers
+        if stored_role == 'student':
+            try:
+                from .models import Notification
+                admins = Profile.objects.filter(role='admin')
+                for admin_prof in admins:
+                    Notification.objects.create(
+                        user=admin_prof.user,
+                        title="New Student Enrollment 🎓",
+                        message=f"{user.first_name or email} has signed up and is pending your approval.",
+                        notification_type="student_approval"
                     )
-                    Enrollment.objects.get_or_create(student=user, batch=batch_obj)
-                except Exception as e:
-                    print(f"Auto-enrollment error: {e}")
-
-        else:
-            if profile.role != stored_role:
-                return Response({'error': 'Unauthorized login. Role mismatch.'}, status=status.HTTP_403_FORBIDDEN)
-            # Update raw password if provided
-            if password_to_set:
-                profile.raw_password = password_to_set
-                profile.save()
-        # Mark user as having logged in (to bypass OTP next time for trainers)
-        user.last_login = timezone.now()
-        user.save(update_fields=['last_login'])
+            except Exception as e:
+                print(f"Error creating enrollment notification: {e}")
         
-        return Response({
-            'message': 'OTP verified successfully',
-            'role': profile.role,
-            'email': email,
-            'name': user.first_name or email.split('@')[0],
-            'is_approved': profile.is_approved
-        }, status=status.HTTP_200_OK)
+        # handle enrollment if course_id is provided
+        course_id = request.data.get('course_id')
+        if course_id:
+            from .models import Course, Batch, Enrollment
+            import datetime
+            try:
+                course_obj = Course.objects.get(pk=course_id)
+                # Find or create a default batch for this course
+                batch_obj, _ = Batch.objects.get_or_create(
+                    course=course_obj,
+                    name=f"{course_obj.title} - Main Batch",
+                    defaults={
+                        'start_date': datetime.date.today(),
+                        'end_date': datetime.date.today() + datetime.timedelta(days=90),
+                        'schedule_time': 'TBD'
+                    }
+                )
+                Enrollment.objects.get_or_create(student=user, batch=batch_obj)
+            except Exception as e:
+                print(f"Auto-enrollment error: {e}")
+
     else:
-        return Response({'error': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
+        if profile.role != stored_role:
+            return Response({'error': 'Unauthorized login. Role mismatch.'}, status=status.HTTP_403_FORBIDDEN)
+        # Update raw password if provided
+        if password_to_set:
+            profile.raw_password = password_to_set
+            profile.save()
+
+    # Mark user as having logged in (to bypass OTP next time for trainers)
+    user.last_login = timezone.now()
+    user.save(update_fields=['last_login'])
+    
+    return Response({
+        'message': 'OTP verified successfully',
+        'role': profile.role,
+        'email': email,
+        'name': user.first_name or email.split('@')[0],
+        'is_approved': profile.is_approved
+    }, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 def add_admin(request):
