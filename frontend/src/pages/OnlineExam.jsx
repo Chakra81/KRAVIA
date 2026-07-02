@@ -4,7 +4,7 @@ import {
   Trophy, Clock, CheckCircle, ChevronRight, 
   ChevronLeft, Award, BarChart3, RotateCcw, Play,
   Zap, Brain, Target, Star, Users, Plus, Trash2,
-  BookOpen, Edit3, X, AlertCircle, ChevronDown, ChevronUp
+  BookOpen, X, AlertCircle, ChevronDown, ChevronUp
 } from 'lucide-react';
 import axios from 'axios';
 import confetti from 'canvas-confetti';
