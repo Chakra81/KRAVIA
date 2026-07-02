@@ -9,7 +9,8 @@ from .views import (
     get_messages, send_message, list_admins, unread_counts,
     admin_detail, list_trainers, trainer_detail, list_enrollments, enrollment_detail,
     ai_chat, ai_summarize_pdf, ai_get_recommendations, ai_chat_history,
-    list_student_exams, get_exam_details, submit_exam, get_leaderboard
+    list_student_exams, get_exam_details, submit_exam, get_leaderboard,
+    create_exam, delete_exam
 )
 from .trainer_admin_views import (
     manage_course_assignment, manage_course_assignment_detail,
@@ -98,6 +99,8 @@ urlpatterns = [
     path('student/exams/', list_student_exams, name='student-exams'),
     path('exam/start/<int:exam_id>/', get_exam_details, name='exam-details'),
     path('exam/submit/', submit_exam, name='exam-submit'),
+    path('exam/create/', create_exam, name='exam-create'),
+    path('exam/delete/<int:exam_id>/', delete_exam, name='exam-delete'),
     path('exam/leaderboard/', get_leaderboard, name='leaderboard'),
     path('exam/leaderboard/<str:domain>/', get_leaderboard, name='leaderboard-domain'),
     

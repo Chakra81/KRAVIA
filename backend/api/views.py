@@ -306,6 +306,70 @@ def logout_user(request):
     logout(request)
     return Response({'message': 'Logged out successfully'}, status=status.HTTP_200_OK)
 
+def _auto_seed_exams():
+    """Auto-seed sample exams if none exist in the database."""
+    if Exam.objects.exists():
+        return
+    
+    try:
+        python_exam = Exam.objects.create(
+            title="Python Basics Certification",
+            domain="Python",
+            difficulty="Beginner",
+            timer=300,
+            total_marks=50
+        )
+        py_questions = [
+            ("What is the output of print(2 ** 3)?", "6", "8", "9", "Error", "B", 10),
+            ("Which keyword defines a function in Python?", "func", "def", "function", "lambda", "B", 10),
+            ("What data type is the object [1, 2, 3]?", "Tuple", "Dictionary", "List", "Set", "C", 10),
+            ("Which of the following is mutable?", "Tuple", "String", "List", "Integer", "C", 10),
+            ("How do you insert comments in Python code?", "// comment", "/* comment */", "# comment", "<!-- comment -->", "C", 10)
+        ]
+        for text, a, b, c, d, correct, marks in py_questions:
+            Question.objects.create(exam=python_exam, text=text, option_a=a, option_b=b,
+                                    option_c=c, option_d=d, correct_option=correct, marks=marks)
+        
+        react_exam = Exam.objects.create(
+            title="ReactJS Fundamentals",
+            domain="ReactJS",
+            difficulty="Intermediate",
+            timer=300,
+            total_marks=50
+        )
+        react_questions = [
+            ("What is the virtual DOM?", "A direct copy of the real DOM", "A lightweight JS representation of the DOM", "A browser extension", "A backend database", "B", 10),
+            ("Which hook manages state in a functional component?", "useEffect", "useContext", "useState", "useReducer", "C", 10),
+            ("What are props in React?", "Internal state", "External libraries", "Arguments passed into components", "DOM elements", "C", 10),
+            ("Which lifecycle is replaced by useEffect?", "componentDidMount", "componentDidUpdate", "componentWillUnmount", "All of the above", "D", 10),
+            ("How do you pass data to child components?", "Using state", "Using context", "Using props", "Using refs", "C", 10)
+        ]
+        for text, a, b, c, d, correct, marks in react_questions:
+            Question.objects.create(exam=react_exam, text=text, option_a=a, option_b=b,
+                                    option_c=c, option_d=d, correct_option=correct, marks=marks)
+
+        general_exam = Exam.objects.create(
+            title="General Programming MCQ",
+            domain="General",
+            difficulty="Beginner",
+            timer=300,
+            total_marks=50
+        )
+        general_questions = [
+            ("What does HTML stand for?", "Hyper Text Markup Language", "High Text Machine Language", "Hyper Tabular Markup Language", "None", "A", 10),
+            ("Which symbol is used for single-line comments in JavaScript?", "#", "//", "/*", "--", "B", 10),
+            ("What is the purpose of CSS?", "To structure web pages", "To add interactivity", "To style web pages", "To handle databases", "C", 10),
+            ("Which is NOT a programming language?", "Python", "Java", "HTML", "C++", "C", 10),
+            ("What does 'API' stand for?", "Applied Programming Interface", "Application Programming Interface", "Applicable Program Interface", "None", "B", 10)
+        ]
+        for text, a, b, c, d, correct, marks in general_questions:
+            Question.objects.create(exam=general_exam, text=text, option_a=a, option_b=b,
+                                    option_c=c, option_d=d, correct_option=correct, marks=marks)
+        print("[Auto-seed] Sample exams created successfully.")
+    except Exception as e:
+        print(f"[Auto-seed] Error creating exams: {e}")
+
+
 @api_view(['GET'])
 def list_student_exams(request):
     email = request.query_params.get('email')
@@ -317,25 +381,103 @@ def list_student_exams(request):
         
     if not user:
         return Response({'error': 'Authentication required. Please provide a valid email.'}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    # Auto-seed sample exams if none exist
+    _auto_seed_exams()
         
     try:
         if hasattr(user, 'profile') and user.profile.role in ['admin', 'trainer']:
-            exams = Exam.objects.all()
+            exams = Exam.objects.all().prefetch_related('questions')
             serializer = ExamSerializer(exams, many=True)
             return Response({'exams': serializer.data, 'domain': 'All Domains'})
     except Exception as e:
         pass
         
     # Get student's enrolled domain from their active enrollment
-    enrollment = Enrollment.objects.filter(student=user, status='active').first()
+    enrollment = Enrollment.objects.filter(student=user).first()  # any enrollment, not just active
     
-    if not enrollment:
-        return Response({'exams': [], 'domain': 'Not Enrolled'})
-        
-    domain = enrollment.batch.course.title
-    exams = Exam.objects.filter(domain__icontains=domain)
+    domain = ''
+    if enrollment:
+        domain = enrollment.batch.course.title
+        # Try keyword-based matching: split course title into words and match any
+        keywords = [w for w in domain.replace('-', ' ').split() if len(w) > 2]
+        from django.db.models import Q
+        q = Q()
+        for kw in keywords:
+            q |= Q(domain__icontains=kw)
+        exams = Exam.objects.filter(q).prefetch_related('questions')
+        if not exams.exists():
+            # Fallback: show all exams if no domain match
+            exams = Exam.objects.all().prefetch_related('questions')
+    else:
+        # No enrollment: show all available exams
+        exams = Exam.objects.all().prefetch_related('questions')
+        domain = 'All Domains'
+    
     serializer = ExamSerializer(exams, many=True)
-    return Response({'exams': serializer.data, 'domain': domain})
+    return Response({'exams': serializer.data, 'domain': domain or 'All Domains'})
+
+
+@api_view(['POST'])
+def create_exam(request):
+    """Admin: Create a new exam with questions."""
+    email = request.data.get('email')
+    user = None
+    if email:
+        user = User.objects.filter(email=email).first()
+    if not user and request.user.is_authenticated:
+        user = request.user
+    if not user or not hasattr(user, 'profile') or user.profile.role not in ['admin', 'trainer']:
+        return Response({'error': 'Permission denied. Admin/Trainer only.'}, status=status.HTTP_403_FORBIDDEN)
+    
+    title = request.data.get('title', '').strip()
+    domain = request.data.get('domain', '').strip()
+    difficulty = request.data.get('difficulty', 'Beginner')
+    timer = int(request.data.get('timer', 300))
+    questions_data = request.data.get('questions', [])
+    
+    if not title or not domain:
+        return Response({'error': 'Title and domain are required.'}, status=status.HTTP_400_BAD_REQUEST)
+    if len(questions_data) < 1:
+        return Response({'error': 'At least one question is required.'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    total_marks = sum(int(q.get('marks', 10)) for q in questions_data)
+    exam = Exam.objects.create(
+        title=title, domain=domain, difficulty=difficulty,
+        timer=timer, total_marks=total_marks
+    )
+    for q in questions_data:
+        Question.objects.create(
+            exam=exam,
+            text=q.get('text', ''),
+            option_a=q.get('option_a', ''),
+            option_b=q.get('option_b', ''),
+            option_c=q.get('option_c', ''),
+            option_d=q.get('option_d', ''),
+            correct_option=q.get('correct_option', 'A'),
+            marks=int(q.get('marks', 10))
+        )
+    serializer = ExamSerializer(exam)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+@api_view(['DELETE'])
+def delete_exam(request, exam_id):
+    """Admin: Delete an exam."""
+    email = request.query_params.get('email') or request.data.get('email')
+    user = None
+    if email:
+        user = User.objects.filter(email=email).first()
+    if not user and request.user.is_authenticated:
+        user = request.user
+    if not user or not hasattr(user, 'profile') or user.profile.role not in ['admin', 'trainer']:
+        return Response({'error': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+    try:
+        exam = Exam.objects.get(pk=exam_id)
+        exam.delete()
+        return Response({'message': 'Exam deleted successfully.'}, status=status.HTTP_200_OK)
+    except Exam.DoesNotExist:
+        return Response({'error': 'Exam not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['GET'])
 def get_exam_details(request, exam_id):
